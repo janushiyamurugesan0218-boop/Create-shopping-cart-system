@@ -1,0 +1,254 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Interactive Shopping Cart</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+        }
+
+        body {
+            background-color: #f1f5f9;
+            color: #1e293b;
+            padding: 40px 20px;
+        }
+
+        .main-wrapper {
+            max-width: 1100px;
+            margin: 0 auto;
+        }
+
+        h1 {
+            margin-bottom: 30px;
+            font-size: 28px;
+            color: #0f172a;
+        }
+
+        /* Responsive Layout Container Splits */
+        .cart-layout-grid {
+            display: grid;
+            grid-template-columns: 2fr 1fr;
+            gap: 30px;
+            align-items: start;
+        }
+
+        /* Left Side: Items List Container */
+        .items-card-container {
+            background-color: #ffffff;
+            border-radius: 12px;
+            padding: 24px;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+            border: 1px solid #e2e8f0;
+        }
+
+        .cart-item-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 20px 0;
+            border-bottom: 1px solid #f1f5f9;
+        }
+
+        .cart-item-row:last-child {
+            border-bottom: none;
+            padding-bottom: 0;
+        }
+
+        .cart-item-row:first-child {
+            padding-top: 0;
+        }
+
+        .item-details {
+            flex: 2;
+        }
+
+        .item-title {
+            font-size: 16px;
+            font-weight: 600;
+            color: #0f172a;
+            margin-bottom: 4px;
+        }
+
+        .item-unit-price {
+            font-size: 14px;
+            color: #64748b;
+        }
+
+        /* Quantity Modifiers Wrapper Controls */
+        .quantity-controls-box {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            flex: 1;
+            justify-content: center;
+        }
+
+        .qty-btn {
+            background-color: #f1f5f9;
+            border: 1px solid #cbd5e1;
+            width: 32px;
+            height: 32px;
+            border-radius: 6px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s;
+        }
+
+        .qty-btn:hover {
+            background-color: #e2e8f0;
+            color: #000;
+        }
+
+        .qty-display {
+            font-size: 15px;
+            font-weight: 600;
+            min-width: 20px;
+            text-align: center;
+        }
+
+        .item-total-pane {
+            flex: 1;
+            text-align: right;
+            font-weight: 600;
+            font-size: 16px;
+        }
+
+        .delete-btn {
+            background: none;
+            border: none;
+            color: #ef4444;
+            cursor: pointer;
+            font-size: 14px;
+            margin-left: 20px;
+            font-weight: 500;
+        }
+
+        .delete-btn:hover {
+            text-decoration: underline;
+        }
+
+        /* Right Side: Order Summary Panel Summary card */
+        .summary-panel-card {
+            background-color: #ffffff;
+            border-radius: 12px;
+            padding: 24px;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+            border: 1px solid #e2e8f0;
+        }
+
+        .summary-panel-card h3 {
+            font-size: 20px;
+            margin-bottom: 20px;
+            border-bottom: 1px solid #f1f5f9;
+            padding-bottom: 12px;
+        }
+
+        .summary-line-row {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 14px;
+            font-size: 15px;
+            color: #475569;
+        }
+
+        .summary-line-row.grand-total {
+            border-top: 1px solid #e2e8f0;
+            margin-top: 18px;
+            padding-top: 18px;
+            font-size: 18px;
+            font-weight: 700;
+            color: #0f172a;
+        }
+
+        .checkout-action-btn {
+            width: 100%;
+            background-color: #2563eb;
+            color: white;
+            border: none;
+            padding: 14px;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 700;
+            cursor: pointer;
+            margin-top: 15px;
+            transition: background 0.2s;
+        }
+
+        .checkout-action-btn:hover {
+            background-color: #1d4ed8;
+        }
+
+        .empty-cart-view {
+            text-align: center;
+            padding: 40px 0;
+            color: #64748b;
+            display: none;
+        }
+
+        /* Responsive Breakpoint Layout rules */
+        @media (max-width: 768px) {
+            .cart-layout-grid {
+                grid-template-columns: 1fr;
+            }
+            .cart-item-row {
+                flex-wrap: wrap;
+                gap: 15px;
+            }
+            .quantity-controls-box {
+                justify-content: flex-start;
+                order: 3;
+                flex: none;
+            }
+            .item-total-pane {
+                order: 4;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="main-wrapper">
+        <h1>Your Shopping Cart</h1>
+
+        <div class="cart-layout-grid">
+            <div class="items-card-container">
+                <div class="empty-cart-view" id="empty-notice">Your cart is currently empty.</div>
+                <div id="cart-items-wrapper-target">
+                    </div>
+            </div>
+
+            <div class="summary-panel-card">
+                <h3>Order Summary</h3>
+                <div class="summary-line-row">
+                    <span>Subtotal</span>
+                    <span>$<span id="summary-subtotal">0.00</span></span>
+                </div>
+                <div class="summary-line-row">
+                    <span>Estimated Tax (8%)</span>
+                    <span>$<span id="summary-tax">0.00</span></span>
+                </div>
+                <div class="summary-line-row">
+                    <span>Shipping</span>
+                    <span><span id="summary-shipping">Free</span></span>
+                </div>
+                <div class="summary-line-row grand-total">
+                    <span>Total Amount</span>
+                    <span>$<span id="summary-grand-total">0.00</span></span>
+                </div>
+                <button class="checkout-action-btn" id="checkout-trigger">Proceed to Checkout</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="cart.js"></script>
+</body>
+</html>
